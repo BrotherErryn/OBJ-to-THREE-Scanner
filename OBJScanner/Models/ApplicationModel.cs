@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Windows.Threading;
 using System.Windows;
+using System.Security.Cryptography;
 
 namespace OBJScanner.Models
 {
@@ -243,21 +244,34 @@ namespace OBJScanner.Models
 			ProcessFile(e.FullPath);
 		}
 
-		Dictionary<string, DateTime> _lastModifed = new Dictionary<string, DateTime>();
+		Dictionary<string, string> _fileHashes = new Dictionary<string,string>();
 		private void _watcher_Changed(object sender, FileSystemEventArgs e)
 		{
-			bool recent = false;
-			if (_lastModifed.ContainsKey(e.FullPath))
-			{
-				recent = (DateTime.Now.Subtract(_lastModifed[e.FullPath]).TotalMilliseconds < 1000);
-			}
-			_lastModifed[e.FullPath] = DateTime.Now;			
-			if(!recent)
-				ProcessFile(e.FullPath);
+			string hash = GetMD5HashFromFile(e.FullPath);
 
-			IEnumerable<string> expired = _lastModifed.Where(w => DateTime.Now.Subtract(w.Value).TotalMilliseconds > 1000).Select(s => s.Key).ToList();
-			foreach (string key in expired)
-				_lastModifed.Remove(key);
+			if (_fileHashes.ContainsKey(e.FullPath))
+			{
+				if (_fileHashes[e.FullPath] == hash)
+					return;
+			}
+			_fileHashes[e.FullPath] = hash;			
+			ProcessFile(e.FullPath);
+		}
+
+		protected string GetMD5HashFromFile(string fileName)
+		{
+			using (var stream = new BufferedStream(File.OpenRead(fileName), 1200000))
+			{
+				MD5 md5 = new MD5CryptoServiceProvider();
+				byte[] retVal = md5.ComputeHash(stream);
+				
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < retVal.Length; i++)
+				{
+					sb.Append(retVal[i].ToString("x2"));
+				}
+				return sb.ToString();
+			}
 		}
 
 		public void Dispose()
