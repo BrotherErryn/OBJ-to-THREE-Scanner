@@ -125,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\SimpleMvvmToolkit-WPF.dll" />
+    <Resource Include="Application.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\ConvertScript.txt" />

@@ -91,6 +91,18 @@ namespace OBJScanner.Models
 				}
 			}
 		}
+		public bool OutputBinary
+		{
+			get { return Properties.Settings.Default.Binary; }
+			set
+			{
+				if (value != OutputBinary)
+				{
+					Properties.Settings.Default.Binary = value;
+					NotifyPropertyChanged(p => p.OutputBinary);
+				}
+			}
+		}
 
 		public string Alignment
 		{
@@ -181,11 +193,6 @@ namespace OBJScanner.Models
 
 			string destination = sourceFI.FullName.Replace(baseSourceFI.FullName, destFI.FullName);
 
-			//python.exe convert.py -i "%1" -o "%1.js"
-			//string outpath = OutputPath;
-			//if (outpath.Substring(outpath.Length - 1, 1) != "/")
-			//    outpath += "/";
-
 			try
 			{
 				destination = Regex.Replace(destination, @".obj", @".js", RegexOptions.IgnoreCase);
@@ -198,12 +205,13 @@ namespace OBJScanner.Models
 
 				//[-a center|top|bottom] [-s smooth|flat] [-t ascii|binary] [-d invert|normal]
 				//string cmd = String.Format("\"{0}\" \"{1}convert.py\" -t binary -i \"{2}\" -o \"{3}\"", 
-				string cmd = String.Format("\"{0}\" \"{1}convert.py\" -i \"{2}\" -o \"{3}\" -a \"{4}\"",
+				string cmd = String.Format(@"""{0}"" ""{1}convert.py"" -i ""{2}"" -o ""{3}"" -a ""{4}"" -t ""{5}""",
 					Properties.Settings.Default.Python,
 					scriptpath,
 					sourceFileName,
 					destination,
-					Alignment
+					Alignment,
+					OutputBinary ? "binary" : "ascii"
 				);
 
 				if(final.Exists)
@@ -249,6 +257,8 @@ namespace OBJScanner.Models
 		{
 			string hash = GetMD5HashFromFile(e.FullPath);
 
+			if (hash == null) return; /* already busy, do nothing */
+
 			if (_fileHashes.ContainsKey(e.FullPath))
 			{
 				if (_fileHashes[e.FullPath] == hash)
@@ -260,17 +270,24 @@ namespace OBJScanner.Models
 
 		protected string GetMD5HashFromFile(string fileName)
 		{
-			using (var stream = new BufferedStream(File.OpenRead(fileName), 1200000))
+			try
 			{
-				MD5 md5 = new MD5CryptoServiceProvider();
-				byte[] retVal = md5.ComputeHash(stream);
-				
-				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < retVal.Length; i++)
+				using (var stream = new BufferedStream(File.OpenRead(fileName), 1200000))
 				{
-					sb.Append(retVal[i].ToString("x2"));
+					MD5 md5 = new MD5CryptoServiceProvider();
+					byte[] retVal = md5.ComputeHash(stream);
+
+					StringBuilder sb = new StringBuilder();
+					for (int i = 0; i < retVal.Length; i++)
+					{
+						sb.Append(retVal[i].ToString("x2"));
+					}
+					return sb.ToString();
 				}
-				return sb.ToString();
+			}
+			catch
+			{
+				return null;
 			}
 		}
 

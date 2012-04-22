@@ -2,7 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		Background="{StaticResource WindowBackgroundBrush}"
-        Title="MainWindow" Height="600" Width="800">
+		Icon="Application.ico"
+        Title="OBJ Scanner" Height="600" Width="800">
 	<DockPanel>
 		<Expander Header="Settings" DockPanel.Dock="Top" IsExpanded="True">
 			<Grid>
@@ -34,6 +35,7 @@
 				
 				<TextBlock Grid.Column="0" Grid.Row="3">Align:</TextBlock>
 				<ComboBox Grid.Column="1" Grid.Row="3" ItemsSource="{Binding AlignmentOptions}" SelectedValue="{Binding Alignment}"></ComboBox>
+				<CheckBox Grid.Column="3" Grid.Row="4" IsChecked="{Binding OutputBinary}" ToolTip="Output as binary"></CheckBox>
 			</Grid>
 		</Expander>
 		<ListBox ItemsSource="{Binding ConversionHistory}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="False">

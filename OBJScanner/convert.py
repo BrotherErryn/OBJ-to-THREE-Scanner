@@ -1498,6 +1498,8 @@ def convert_binary(infile, outfile):
     out.write("".join(buffer))
     out.close()
 
+    print "%d vertices, %d faces, %d materials" % (len(vertices), len(faces), len(materials))
+
 # #############################################################################
 # Helpers
 # #############################################################################

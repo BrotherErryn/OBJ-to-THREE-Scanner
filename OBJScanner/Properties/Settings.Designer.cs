@@ -94,5 +94,17 @@ namespace OBJScanner.Properties {
                 this["Alignment"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Binary {
+            get {
+                return ((bool)(this["Binary"]));
+            }
+            set {
+                this["Binary"] = value;
+            }
+        }
     }
 }
